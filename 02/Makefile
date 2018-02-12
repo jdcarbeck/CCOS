@@ -8,4 +8,4 @@ $(program_NAME): Practical2.c
 clean:
 	rm $(program_NAME)
 check:
-	valgrind --trace-children=yes --track-origins=yes --dsymutil=yes ./$(program_NAME)
+	valgrind --leak-check=full --trace-children=yes --track-origins=yes --dsymutil=yes ./$(program_NAME)

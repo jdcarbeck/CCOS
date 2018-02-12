@@ -23,8 +23,11 @@ void* consumer_thread(void* arg)
         pthread_mutex_lock(&data_ptr->mutex);
         if(!data_ptr->value_needs_printing)
             pthread_cond_wait(&data_ptr->cond, &data_ptr->mutex);   
-        data_ptr->touched_by = pthread_self();
-        pthread_cond_signal(&data_ptr->cond_p);
+        if(!data_ptr->finished)
+        {
+            data_ptr->touched_by = pthread_self();
+            pthread_cond_signal(&data_ptr->cond_p);
+        }
         pthread_mutex_unlock(&data_ptr->mutex);
     }
     pthread_exit(0);
@@ -38,10 +41,13 @@ void* producer_thread(void* arg)
         pthread_mutex_lock(&data_ptr->mutex);
         if(!data_ptr->value_needs_printing)
             pthread_cond_wait(&data_ptr->cond_p, &data_ptr->mutex);
-        int thread_id = (int)data_ptr->touched_by;
-        printf("%u thread handled: %s", thread_id, data_ptr->string);
+        if(!data_ptr->finished)
+        {
+            int thread_id = (int)data_ptr->touched_by;
+            printf("%u thread handled: %s", thread_id, data_ptr->string);
+            data_ptr->value_needs_printing = 0;
+        }
         fflush(stdin);
-        data_ptr->value_needs_printing = 0;
         pthread_mutex_unlock(&data_ptr->mutex);
     }
     pthread_exit(0);
@@ -72,8 +78,9 @@ int main(int argc, char** argv)
         size_t bufsize = 100;
         buffer = (char*)malloc(bufsize * sizeof(char));
         getline(&buffer, &bufsize, stdin);
-        if(strcmp("exit\n", buffer) == 0)
+        if(strcmp("q!\n", buffer) == 0)
         {
+            fflush(stdin);
             pthread_mutex_lock(&input_data.mutex);
             input_data.finished = 1;
             pthread_cond_broadcast(&input_data.cond);
@@ -83,6 +90,7 @@ int main(int argc, char** argv)
         }
         else if(strcmp("\n", buffer) != 0)
         {
+            fflush(stdin);
             pthread_mutex_lock(&input_data.mutex);
             input_data.string = buffer;
             input_data.value_needs_printing = 1;
@@ -91,7 +99,7 @@ int main(int argc, char** argv)
         }
         free(buffer);    
     }
-
+            
     for(int i = 0; i < consum_th_size; i++)
         pthread_join(consum_th[i], NULL);
     pthread_join(produc_th,NULL);
