@@ -2,7 +2,7 @@ ORIGINAL=orginal/*.java
 NONPRE=nonpre/*.java
 PREQUE=preque/*.java
 ORG = original/*.java
-SOURCES=ThreadCB.java TimerInterruptHandler.java	
+SOURCES=*.java	
 CLASSES=osp/*/*.class
 OPTS=
 
@@ -31,17 +31,21 @@ debug: 	build
 clean:
 	/bin/rm -rf osp temp *.log saved
 
+
 preque: cleanThread
 	cp $(PREQUE) .
 	make -s run
+
 
 nonpre: cleanThread
 	cp $(NONPRE) .
 	make -s run
 
+
 org: cleanThread
 	cp $(ORG) .
 	make -s run
+
 
 cleanThread:
 	rm ThreadCB.java
