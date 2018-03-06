@@ -1,24 +1,25 @@
-package osp.Threads;
-import java.util.Vector;
-import java.util.Enumeration;
-import osp.Utilities.*;
-import osp.IFLModules.*;
-import osp.Tasks.*;
-import osp.EventEngine.*;
-import osp.Hardware.*;
-import osp.Devices.*;
-import osp.Memory.*;
-import osp.Resources.*;
+package osp.Threads; 
+import java.util.Vector; 
+import java.util.Enumeration; 
+import osp.Utilities.*; 
+import osp.IFLModules.*; 
+import osp.Tasks.*; 
+import osp.EventEngine.*; 
+import osp.Hardware.*; 
+import osp.Devices.*; 
+import osp.Memory.*; 
+import osp.Resources.*; 
 
 public class ThreadCB extends IflThreadCB {
-  private staic GenericList readyQueue;
+  private static GenericList readyQueue;
 
   public ThreadCB() {
     super();
   }
 
-  public static void init() [
+  public static void init() {
     readyQueue = new GenericList(); 
+    System.out.println("This is running non-pre-emptive FIFO scheduling");
   }
 
   //Create a thread and places it on the queue
@@ -49,7 +50,7 @@ public class ThreadCB extends IflThreadCB {
       return null;
     }
 
-    readQueue.append(newThread);
+    readyQueue.append(newThread);
     MyOut.print("osp.Threads.ThreadCB",
                 "successfully added "+ newThread +" to "+ task);
     dispatch();
@@ -61,7 +62,7 @@ public class ThreadCB extends IflThreadCB {
     TaskCB task = getTask();
     switch(getStatus()) {
       case ThreadReady:
-          readQueue.remove(this);
+          readyQueue.remove(this);
           break;
       case ThreadRunning:
           if(this == MMU.getPTBR().getTask().getCurrentThread())
@@ -99,7 +100,7 @@ public class ThreadCB extends IflThreadCB {
     int oldStatus = this.getStatus();
     MyOut.print(this, "Entering suspend("+this+","+event+")");
 
-    Thread runningThread=null;
+    ThreadCB runningThread=null;
     TaskCB runningTask=null;
     try {
       runningTask=MMU.getPTBR().getTask();
@@ -135,7 +136,7 @@ public class ThreadCB extends IflThreadCB {
     if(getStatus()==ThreadWaiting)
       setStatus(ThreadReady);
     else if (getStatus() > ThreadWaiting)
-      setStatus(getStatus - 1);
+      setStatus(getStatus() - 1);
     
     //Put thread on queue if appropriate
     if(getStatus()==ThreadReady)
@@ -149,45 +150,37 @@ public class ThreadCB extends IflThreadCB {
     TaskCB runningTask=null;
 
     try {
-      runningTask = MMU.getPTBR().getTasj();
+      runningTask = MMU.getPTBR().getTask();
       runningThread = runningTask.getCurrentThread();
     } catch(NullPointerException e) {}
 
-    //If necessary remove current thread an reschedule it
-    if(runningThread != null) {
-      MyOut.print("osp.Threads.ThreadCB", 
-                  "Oreentubg cyrrebtky rybbubg " + runningThread);
 
-      runningTask.setCurrentThread(null);
-      MMU.setPTBR(null);
+    //Select the top thread and checks that it is finished
+    //if finished the thread at the head of the queue is then
+    //dispachted onto the CPU
+    if(runningThread == null) {
 
-      runningThread.setStatus(ThreadReady);
-      readyQueue.append(runningThread);
-    }
+      threadToDispatch = (ThreadCB)readyQueue.removeHead();
+      //If the queue is empty spit out an error
+      if(threadToDispatch == null) {
+        MyOut.print("osp.Threads.ThreadCB",
+                    "Can't find suitable thread to dispatch");
+        MMU.setPTBR(null);
+        return FAILURE;
+      }   
 
-    //Select thread from ready queue
-    threadToDispatch = (ThreadCB)readyQueue.removeHead();
-    if(threadToDispatch == null) {
+      //put thread on processor.
+      MMU.setPTBR(threadToDispatch.getTask().getPageTable());
+
+      //set thread to dispatch as the current thread of its task
+      threadToDispatch.getTask().setCurrentThread(threadToDispatch);
+
+      //set Thread's status.
+      threadToDispatch.setStatus(ThreadRunning);
+
       MyOut.print("osp.Threads.ThreadCB",
-                  "Can't find suitable thread to dispatch");
-      MMU.setPTBR(null);
-      return FAILURE;
-    }
-
-    //put thread on processor.
-    MMU.setPTBR(threadToDispatch.getTask.getPageTable());
-
-    //set thread to dispatch as the current thread of its task
-    threadToDispatch.getTask().setCurrentTread(threadToDispatch);
-
-    //set Thread's status.
-    threadToDispatch.setStatus(ThreadRunning);
-
-    MyOut.print("osp.Threads.ThreadCB",
                 "Dispatching " + threadToDispatch);
-
-    HTimer.set(150);
-  
+    } 
     return SUCCESS;
   }
 

@@ -1,6 +1,8 @@
+ORIGINAL=orginal/*.java
+NONPRE=nonpre/*.java
+PREQUE=preque/*.java
+ORG = original/*.java
 SOURCES=ThreadCB.java TimerInterruptHandler.java	
-NONPRE=ThreadCB_NONPRE.java TimerInterruptHandler.java
-PREQUE=ThreadCB_PREQUE.java TimerInterruptHandler.java
 CLASSES=osp/*/*.class
 OPTS=
 
@@ -11,15 +13,8 @@ build: $(CLASSES)
 		(mkdir -p osp/tmp; make) \
 		|| (echo "Something wrong: Can't create the directory for the *.class files"; exit 1))
 
-
 $(CLASSES): $(SOURCES) 
 	javac -g -classpath .:$(CLASSPATH):OSP.jar -d . $(SOURCES)
-
-nonpre: $(NONPRE)
-	javac -g -classpath .:$(CLASSPATH):OSP.jar -d . $(NONPRE)
-
-preque: $(PREQUE)
-	javac -g -classpath .:$(CLASSPATH):OSP.jar -d . $(NONPRE)
 
 run: 	build
 	java -classpath .:$(CLASSPATH):OSP.jar osp.OSP -noGUI $(OPTS)
@@ -35,3 +30,18 @@ debug: 	build
 
 clean:
 	/bin/rm -rf osp temp *.log saved
+
+preque: cleanThread
+	cp $(PREQUE) .
+	make -s run
+
+nonpre: cleanThread
+	cp $(NONPRE) .
+	make -s run
+
+org: cleanThread
+	cp $(ORG) .
+	make -s run
+
+cleanThread:
+	rm ThreadCB.java
