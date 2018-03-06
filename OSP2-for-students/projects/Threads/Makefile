@@ -1,4 +1,6 @@
-SOURCES=*.java
+SOURCES=ThreadCB.java TimerInterruptHandler.java	
+NONPRE=ThreadCB_NONPRE.java TimerInterruptHandler.java
+PREQUE=ThreadCB_PREQUE.java TimerInterruptHandler.java
 CLASSES=osp/*/*.class
 OPTS=
 
@@ -12,6 +14,12 @@ build: $(CLASSES)
 
 $(CLASSES): $(SOURCES) 
 	javac -g -classpath .:$(CLASSPATH):OSP.jar -d . $(SOURCES)
+
+nonpre: $(NONPRE)
+	javac -g -classpath .:$(CLASSPATH):OSP.jar -d . $(NONPRE)
+
+preque: $(PREQUE)
+	javac -g -classpath .:$(CLASSPATH):OSP.jar -d . $(NONPRE)
 
 run: 	build
 	java -classpath .:$(CLASSPATH):OSP.jar osp.OSP -noGUI $(OPTS)
