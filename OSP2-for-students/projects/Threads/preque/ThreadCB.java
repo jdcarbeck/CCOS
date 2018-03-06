@@ -18,9 +18,7 @@ public class ThreadCB extends IflThreadCB {
   private static class ThreadComparator implements Comparator<ThreadCB> {
     @Override
     public int compare(ThreadCB x, ThreadCB y) {
-      if(x.getPriority() < y.getPriority()) return 1;
-      if(x.getPriority() < y.getPriority()) return -1;
-      return 0;
+      return x.getPriority() - y.getPriority();
     }
   }
 
