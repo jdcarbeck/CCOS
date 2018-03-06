@@ -27,7 +27,7 @@ public class ThreadCB extends IflThreadCB {
   }
 
 
-  /** This method will be called once at the beginning of the simulation. 
+  /* This method will be called once at the beginning of the simulation. 
    * The student can set up static variables here.
    * @OSPProject Threads
    */
@@ -71,7 +71,6 @@ public class ThreadCB extends IflThreadCB {
     // Setup the new thread.
     newThread.setPriority(task.getPriority());
     newThread.setStatus(ThreadReady);
-
     newThread.setTask(task);
       
     // Add the new thread to the task.
@@ -83,10 +82,8 @@ public class ThreadCB extends IflThreadCB {
     }
       
     readyQueue.append(newThread);
-    
     MyOut.print("osp.Threads.ThreadCB",
-          "Successfully added "+newThread+" to "+task);
-      
+      "Successfully added "+newThread+" to "+task);
     dispatch();
 
     return newThread;
@@ -111,13 +108,13 @@ public class ThreadCB extends IflThreadCB {
     switch (getStatus()) {
       case ThreadReady:
 	    // Delete thread from ready queue.
-	    readyQueue.remove(this);
-	    break;
+        readyQueue.remove(this);
+	      break;
       case ThreadRunning:
 	    // Remove (preempt) thread from CPU.
-	    if(this == MMU.getPTBR().getTask().getCurrentThread()) {
-        MMU.getPTBR().getTask().setCurrentThread(null);
-	    }
+        if(this == MMU.getPTBR().getTask().getCurrentThread()) {
+          MMU.getPTBR().getTask().setCurrentThread(null);
+        }
 	    break;
       default:
     }       
@@ -145,11 +142,10 @@ public class ThreadCB extends IflThreadCB {
     ResourceCB.giveupResources(this);
 
     dispatch();
-
+    
     if (this.getTask().getThreadCount()==0) {
-	    MyOut.print(this,
-			"After destroying " + this + ": " + this.getTask() 
-			+ " has no threads left; destroying the task");
+      MyOut.print(this,"After destroying " + this + ": " + 
+        this.getTask() + " has no threads left; destroying the task");
 	    this.getTask().kill();
     }
   }
