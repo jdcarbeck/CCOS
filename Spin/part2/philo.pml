@@ -10,7 +10,11 @@ byte p_eating;
 //initalise here
 init {
   atomic {
-    byte i =0;
+    byte i = 0;
+    do
+    ::i < PHIL_NUM -> run P(i); i++;
+    ::else -> break;
+    od;
   }
 }
 
@@ -21,11 +25,11 @@ THINK:
   ::atomic {
     fork[id] == 0 -> 
     fork[id] = id + 1;
-  };
+  }
   ::atomic {
-    fork[(id + 1)%PHIL_NUM] == 0 -> 
+    fork[(id+1)%PHIL_NUM] == 0 -> 
     fork[(id+1)%PHIL_NUM] = id + 1;
-  };
+  }
   fi;
 //check to see if the other fork is available
 GETFORK:
@@ -35,21 +39,21 @@ GETFORK:
     fork[(id + 1)%PHIL_NUM] == 0 -> 
     fork[(id + 1)%PHIL_NUM] = id + 1;
     p_eating++;
-  };
+  }
   ::atomic { 
-    fork[id] == 0 ->
-    fork[(id + 1)%PHIL_NUM] == id + 1 ->
+    fork[id] == 0 -> 
+    fork[(id + 1)%PHIL_NUM] == id + 1 -> 
     fork[id] = id + 1;
     p_eating++;
-  };
+  }
+  fi;
 //when both forks are held eat for then put forks down
 EAT:
   d_step {
     p_eating--;
     fork[(id + 1)%PHIL_NUM] = 0;
-    fork[id] = 0;
   }
-  goto THINK
-//repeat
+  fork[id] = 0;
+  goto THINK;
 }
 
