@@ -1,11 +1,55 @@
-byte PHIL_NUM = 1;
+#ifndef PHIL_NUM
+#define PHIL_NUM 5
+#endif
 
-bool p_think[PHIL_NUM];
-bool p_hung[PHIL_NUM];
-bool p_eat[PHIL_NUM];
+//fork represents which of the diners is using it
+byte fork[PHIL_NUM];
+//count of diners eating
+byte p_eating;
 
-int forks[PHIL_NUM];
-
-proctype P() {
-
+//initalise here
+init {
+  atomic {
+    byte i =0;
+  }
 }
+
+proctype P(byte id) {
+//see if one of the forks is available
+THINK:
+  if
+  ::atomic {
+    fork[id] == 0 -> 
+    fork[id] = id + 1;
+  };
+  ::atomic {
+    fork[(id + 1)%PHIL_NUM] == 0 -> 
+    fork[(id+1)%PHIL_NUM] = id + 1;
+  };
+  fi;
+//check to see if the other fork is available
+GETFORK:
+  if
+  ::atomic {
+    fork[id] == id + 1 -> 
+    fork[(id + 1)%PHIL_NUM] == 0 -> 
+    fork[(id + 1)%PHIL_NUM] = id + 1;
+    p_eating++;
+  };
+  ::atomic { 
+    fork[id] == 0 ->
+    fork[(id + 1)%PHIL_NUM] == id + 1 ->
+    fork[id] = id + 1;
+    p_eating++;
+  };
+//when both forks are held eat for then put forks down
+EAT:
+  d_step {
+    p_eating--;
+    fork[(id + 1)%PHIL_NUM] = 0;
+    fork[id] = 0;
+  }
+  goto THINK
+//repeat
+}
+
