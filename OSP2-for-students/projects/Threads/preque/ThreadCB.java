@@ -12,6 +12,7 @@ import osp.Resources.*;
 //Need this for the priority queue
 import java.util.PriorityQueue;
 import java.util.Comparator;
+import java.util.Random;
 
 public class ThreadCB extends IflThreadCB {
   //implement a comparator for the threads priority queue
@@ -53,9 +54,10 @@ public class ThreadCB extends IflThreadCB {
     ThreadCB newThread = new ThreadCB();
     MyOut.print("osp.Threads.ThreadCB", "Created " + newThread);
 
-    newThread.setPriority(task.getPriority());
     newThread.setStatus(ThreadReady);
     newThread.setTask(task);
+    Random rand = new Random();
+    newThread.setPriority(rand.nextInt(3)); 
 
     if(task.addThread(newThread) != SUCCESS) {
       MyOut.print("osp.Threads.ThreadCB", 

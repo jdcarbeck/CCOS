@@ -34,17 +34,17 @@ clean:
 
 preque: cleanThread
 	cp $(PREQUE) .
-	make -s run
+	make -s gui
 
 
 nonpre: cleanThread
 	cp $(NONPRE) .
-	make -s run
+	make -s gui
 
 
 org: cleanThread
 	cp $(ORG) .
-	make -s run
+	make -s gui
 
 
 cleanThread:

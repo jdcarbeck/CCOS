@@ -12,8 +12,16 @@ import osp.Resources.*;
 
 public class ThreadCB extends IflThreadCB {
   private static GenericList readyQueue;
+  
+  long executionTime;
 
   public ThreadCB() {
+//    long exeTime;
+//    long cpuTime;
+//    long startTime;
+//    long turnTime;    
+//    long exeRatio;
+//    boolean hasRun;
     super();
   }
 
@@ -38,8 +46,7 @@ public class ThreadCB extends IflThreadCB {
 
     ThreadCB newThread = new ThreadCB();
     MyOut.print("osp.Threads.ThreadCB", "Created " + newThread);
-
-    newThread.setPriority(task.getPriority());
+    newThread.setPriority(task.getPriority()); 
     newThread.setStatus(ThreadReady);
     newThread.setTask(task);
 
@@ -49,6 +56,13 @@ public class ThreadCB extends IflThreadCB {
       dispatch();
       return null;
     }
+//    newThread.exeTime = 0;
+//    newThread.cpuTime = 0;
+//    newThread.startTime = 0;
+//    newThread.turnAround = 0;
+//    newThread.hasRun = false;
+    
+//    newThread.turnTime = HClock.get();
 
     readyQueue.append(newThread);
     MyOut.print("osp.Threads.ThreadCB",
@@ -87,6 +101,15 @@ public class ThreadCB extends IflThreadCB {
     }
 
     ResourceCB.giveupResources(this);
+
+//    ThreadCB killedThread = MMU.getPTBR().getTask().getCurrentThread();
+//    killedThread.turnTime = HClock.get() - killedThread.turnTime;
+//    killedThread.exeTime = HClock.get() - killedThread.cpuTime;
+//    killedThread.exeRatio = ((killedThread.turnTime - killedThread.startTime) / 
+//                              killedThread.exeTime); 
+//    MyOut.print(killedThread, killedThread + "Turn time: " + killedThread.turnTime +"\n" +
+//                              "Start time: " + killedThread.startTime + "\n" +
+//                              "Execution Ratio: " + killedThread.exeRatio + "\n");
     dispatch();
 
     if(this.getTask().getThreadCount()==0) {
@@ -180,6 +203,14 @@ public class ThreadCB extends IflThreadCB {
 
       MyOut.print("osp.Threads.ThreadCB",
                 "Dispatching " + threadToDispatch);
+
+//      if(!threadToDispatch.hasRun) {
+//        threadToDispatch.hasRun = true;
+//        threadToDispatch.startTime = HClock.get();
+//      }
+
+//      threadToDispatch.cpuTime = HClock.get();
+
     } 
     return SUCCESS;
   }
