@@ -11,10 +11,12 @@ byte p_eating;
 init {
   atomic {
     byte i = 0;
-    do
-    ::i < PHIL_NUM -> run P(i); i++;
-    ::else -> break;
-    od;
+    //do
+    //::i == PHIL_NUM -> run P(i); i++;
+    //::else -> break;
+    //od;
+    run P(1);
+    run P(0);
   }
 }
 
