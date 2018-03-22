@@ -1,5 +1,5 @@
 #ifndef PHIL_NUM
-#define PHIL_NUM 5
+#define PHIL_NUM 2
 #endif
 
 //fork represents which of the diners is using it
@@ -12,11 +12,11 @@ init {
   atomic {
     byte i = 0;
     //do
-    //::i == PHIL_NUM -> run P(i); i++;
+    //::i < PHIL_NUM -> run P(i); i++;
     //::else -> break;
     //od;
-    run P(1);
     run P(0);
+    run P(1);
   }
 }
 
@@ -54,8 +54,8 @@ EAT:
   d_step {
     p_eating--;
     fork[(id + 1)%PHIL_NUM] = 0;
+    fork[id] = 0;
   }
-  fork[id] = 0;
   goto THINK;
 }
 
